@@ -1,0 +1,5 @@
+SecurityEvent
+| where EventID == 4624
+| where LogonType in (3, 10)
+| where Account !startswith "NT AUTHORITY"
+| project TimeGenerated, Account, IpAddress, Computer
