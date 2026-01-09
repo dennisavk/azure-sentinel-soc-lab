@@ -19,3 +19,5 @@ When this analytics rule triggers, the following SOC triage steps are performed:
 4. Escalation and documentation
    - Escalate to Tier 2 if lateral movement is suspected
    - Document findings and resolution in the incident record
+
+Mapped to MITRE ATT&CK technique: T1110 – Brute Force
