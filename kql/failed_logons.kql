@@ -1,0 +1,6 @@
+SecurityEvent
+| where EventID == 4625
+| where LogonType in (3, 10)
+| where Account !startswith "NT AUTHORITY"
+| summarize FailedCount = count()
+    by Account, IpAddress, bin(TimeGenerated, 15m)
