@@ -1,0 +1,19 @@
+let FailedLogons =
+SecurityEvent
+| where EventID == 4625
+| where LogonType in (3, 10)
+| where Account !startswith "NT AUTHORITY"
+| summarize FailedCount = count()
+    by Account, IpAddress, bin(TimeGenerated, 15m);
+
+let SuccessfulLogons =
+SecurityEvent
+| where EventID == 4624
+| where LogonType in (3, 10)
+| where Account !startswith "NT AUTHORITY"
+| project TimeGenerated, Account, IpAddress, Computer;
+
+FailedLogons
+| where FailedCount >= 5
+| join kind=inner (SuccessfulLogons) on Account, IpAddress
+| project TimeGenerated, Account, IpAddress, FailedCount, Computer
