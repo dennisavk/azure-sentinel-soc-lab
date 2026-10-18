@@ -1,0 +1,30 @@
+// Rule: Brute Force - Excessive Failed Logons from Single IP
+// MITRE ATT&CK: T1110 (Brute Force) | Tactic: Credential Access (TA0006)
+// Source: SecurityEvent (Windows Security events via Azure Monitor Agent)
+
+// ---- AS BUILT (rule running in the lab) ----
+SecurityEvent
+| where EventID == 4625
+| summarize
+    FailedAttempts = count(),
+    TargetedAccounts = make_set(Account)
+    by IpAddress, Computer, bin(TimeGenerated, 5m)
+
+// ---- PROPOSED TUNING (next step: reduces noise) ----
+// SecurityEvent
+// | where EventID == 4625
+// | summarize
+//     FailedAttempts = count(),
+//     TargetedAccounts = make_set(Account),
+//     LogonTypes = make_set(LogonType)
+//     by IpAddress, Computer, bin(TimeGenerated, 5m)
+// | where FailedAttempts >= 10
+
+// ---- TRIAGE HUNT: did the same IP later succeed? (run manually during triage) ----
+// let suspects = SecurityEvent
+// | where EventID == 4625
+// | summarize Fails = count() by IpAddress, bin(TimeGenerated, 5m)
+// | where Fails >= 10 | distinct IpAddress;
+// SecurityEvent
+// | where EventID == 4624 and IpAddress in (suspects)
+// | project TimeGenerated, Computer, Account, IpAddress, LogonType
